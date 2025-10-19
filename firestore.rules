@@ -1,0 +1,134 @@
+/**
+ * @fileOverview Firestore Security Rules for the application.
+ *
+ * Core Philosophy:
+ * This ruleset enforces a strict user-ownership model. All data is nested under
+ * /users/{userId}, and only the authenticated user with the matching UID can
+ * read or write to their own data. This approach ensures data privacy and
+ * prevents unauthorized access.
+ *
+ * Data Structure:
+ * All data is nested under the /users/{userId} path. Each user has their own
+ * chats, settings, and messages stored as subcollections under their user ID.
+ * This hierarchical structure simplifies the security rules and makes it easy
+ * to enforce user-specific access control.
+ *
+ * Key Security Decisions:
+ * - User listing is disallowed to prevent unauthorized discovery of user accounts.
+ * - All write operations are strictly controlled and require the user to be
+ *   the owner of the data.
+ *
+ * Denormalization for Authorization:
+ * The Firestore structure already supports authorization independence via path-based ownership.
+ * No denormalization is required at this time.
+ */
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+
+    /**
+     * @description Rule for the root of the database.  Does not allow any access.
+     * @path /databases/{database}/documents
+     * @allow (get, list, create, update, delete) if false - no access allowed.
+     * @deny (get, list, create, update, delete) all requests will be denied.
+     * @principle Prevents any unauthorized access to the root of the database.
+     */
+    match /{document=**} {
+      allow read, write: if false;
+    }
+
+    /**
+     * @description Controls access to user account documents.  Allows a user to
+     *              create, read, update, and delete their own account.
+     * @path /users/{userAccountId}
+     * @allow (create) if the authenticated user's ID matches the userAccountId.
+     * @allow (get, update, delete) if the authenticated user is the owner of the account.
+     * @deny (create) if the authenticated user's ID does not match the userAccountId.
+     * @deny (get, update, delete) if the authenticated user is not the owner of the account.
+     * @principle Enforces document ownership and restricts access to a user's own data.
+     */
+    match /users/{userAccountId} {
+      allow get: if isOwner(userAccountId);
+      allow list: if false; // Disallow listing all users
+      allow create: if isOwner(userAccountId);
+      allow update: if isExistingOwner(userAccountId);
+      allow delete: if isExistingOwner(userAccountId);
+    }
+
+    /**
+     * @description Controls access to chat documents within a user's account.
+     *              Allows a user to create, read, update, and delete their own chats.
+     * @path /users/{userAccountId}/chats/{chatId}
+     * @allow (create, get, list, update, delete) if the authenticated user is the owner of the chat.
+     * @deny (create, get, list, update, delete) if the authenticated user is not the owner of the chat.
+     * @principle Enforces document ownership and restricts access to a user's own chats.
+     */
+    match /users/{userAccountId}/chats/{chatId} {
+      allow get: if isOwner(userAccountId);
+      allow list: if isOwner(userAccountId);
+      allow create: if isOwner(userAccountId);
+      allow update: if isExistingOwner(userAccountId);
+      allow delete: if isExistingOwner(userAccountId);
+    }
+
+    /**
+     * @description Controls access to message documents within a chat session.
+     *              Allows a user to create, read, update, and delete their own messages.
+     * @path /users/{userAccountId}/chats/{chatId}/messages/{messageId}
+     * @allow (create, get, list, update, delete) if the authenticated user is the owner of the message.
+     * @deny (create, get, list, update, delete) if the authenticated user is not the owner of the message.
+     * @principle Enforces document ownership and restricts access to a user's own messages.
+     */
+    match /users/{userAccountId}/chats/{chatId}/messages/{messageId} {
+      allow get: if isOwner(userAccountId);
+      allow list: if isOwner(userAccountId);
+      allow create: if isOwner(userAccountId);
+      allow update: if isExistingOwner(userAccountId);
+      allow delete: if isExistingOwner(userAccountId);
+    }
+
+    /**
+     * @description Controls access to setting documents within a user's account.
+     *              Allows a user to create, read, update, and delete their own settings.
+     * @path /users/{userAccountId}/settings/{settingId}
+     * @allow (create, get, list, update, delete) if the authenticated user is the owner of the setting.
+     * @deny (create, get, list, update, delete) if the authenticated user is not the owner of the setting.
+     * @principle Enforces document ownership and restricts access to a user's own settings.
+     */
+    match /users/{userAccountId}/settings/{settingId} {
+      allow get: if isOwner(userAccountId);
+      allow list: if isOwner(userAccountId);
+      allow create: if isOwner(userAccountId);
+      allow update: if isExistingOwner(userAccountId);
+      allow delete: if isExistingOwner(userAccountId);
+    }
+
+    // --- Helper Functions ---
+
+    /**
+     * @description Checks if the user is signed in.
+     * @return {boolean} True if the user is signed in, false otherwise.
+     */
+    function isSignedIn() {
+      return request.auth != null;
+    }
+
+    /**
+     * @description Checks if the authenticated user is the owner of the resource.
+     * @param {string} userId The user ID to compare against the authenticated user's ID.
+     * @return {boolean} True if the user is the owner, false otherwise.
+     */
+    function isOwner(userId) {
+      return isSignedIn() && request.auth.uid == userId;
+    }
+
+    /**
+     * @description Checks if the authenticated user is the owner of the resource and the document exists.
+     * @param {string} userId The user ID to compare against the authenticated user's ID.
+     * @return {boolean} True if the user is the owner and the document exists, false otherwise.
+     */
+    function isExistingOwner(userId) {
+        return isOwner(userId) && resource != null;
+    }
+  }
+}
