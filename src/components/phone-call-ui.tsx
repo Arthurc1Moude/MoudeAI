@@ -1,7 +1,7 @@
 
 
 'use client';
-import type { Timeout } from 'node:timers';
+// import type { Timeout } from 'node:timers';
 
 import { Dialog, DialogContent, DialogDescription, DialogTitle } from "@/components/ui/dialog";
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
@@ -70,13 +70,17 @@ export function PhoneCallUI({ text, open, onOpenChange, user }: PhoneCallUIProps
   }, [audioState, toast]);
 
   useEffect(() => {
-  let interval: Timeout | undefined;
-    if (status === 'active') {
-      interval = setInterval(() => {
-        setTimer(prev => prev + 1);
-      }, 1000);
+  let interval: number | undefined;
+  if (status === 'active') {
+    interval = window.setInterval(() => {
+      setTimer(prev => prev + 1);
+    }, 1000);
+  }
+  return () => {
+    if (interval !== undefined) {
+      window.clearInterval(interval);
     }
-    return () => clearInterval(interval);
+  };
   }, [status]);
 
   useEffect(() => {
