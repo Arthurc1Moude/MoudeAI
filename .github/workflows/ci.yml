@@ -29,11 +29,11 @@ jobs:
       - name: Build
         run: npm run build --if-present
 
-      - name: Run lint (non-blocking)
-        run: npm run lint --if-present || true
+      - name: Run lint
+        run: npm run lint --if-present
 
-      - name: Type check (non-blocking temporary)
-        run: npm run typecheck --if-present || true
+      - name: Type check
+        run: npm run typecheck --if-present
 
       - name: Upload Next.js build (artifact)
         if: success()
