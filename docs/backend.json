@@ -1,0 +1,238 @@
+
+{
+  "entities": {
+    "UserAccount": {
+      "$schema": "http://json-schema.org/draft-07/schema#",
+      "title": "UserAccount",
+      "type": "object",
+      "description": "Stores user account information.",
+      "properties": {
+        "id": {
+          "type": "string",
+          "description": "Unique identifier for the user account."
+        },
+        "email": {
+          "type": "string",
+          "description": "Email address of the user.",
+          "format": "email"
+        },
+        "username": {
+          "type": "string",
+          "description": "Username of the user."
+        },
+        "creationDate": {
+          "type": "string",
+          "description": "Date and time when the account was created.",
+          "format": "date-time"
+        },
+        "plan": {
+          "type": "string",
+          "description": "The user's current subscription plan.",
+          "enum": ["Starter", "Plus", "Pro", "Max", "Infinity+"]
+        },
+        "voice": {
+            "type": "string",
+            "description": "The user's preferred voice for text-to-speech.",
+            "enum": [
+                "Algenib", "Achernar", "Canopus", "Sirius", "Rigel",
+                "Vega", "Hadar", "Spica", "Antares", "Deneb"
+            ]
+        }
+      },
+      "required": [
+        "id",
+        "email",
+        "username",
+        "creationDate"
+      ]
+    },
+    "Chat": {
+      "$schema": "http://json-schema.org/draft-07/schema#",
+      "title": "Chat",
+      "type": "object",
+      "description": "Represents a single chat session.",
+      "properties": {
+        "id": {
+          "type": "string",
+          "description": "Unique identifier for the chat session."
+        },
+        "userAccountId": {
+          "type": "string",
+          "description": "Reference to UserAccount. (Relationship: UserAccount 1:N Chat)"
+        },
+        "title": {
+          "type": "string",
+          "description": "Title of the chat session."
+        },
+        "creationDate": {
+          "type": "string",
+          "description": "Date and time when the chat session was created.",
+          "format": "date-time"
+        }
+      },
+      "required": [
+        "id",
+        "userAccountId",
+        "title",
+        "creationDate"
+      ]
+    },
+    "Message": {
+      "$schema": "http://json-schema.org/draft-07/schema#",
+      "title": "Message",
+      "type": "object",
+      "description": "Represents a single message within a chat session.",
+      "properties": {
+        "id": {
+          "type": "string",
+          "description": "Unique identifier for the message."
+        },
+        "chatId": {
+          "type": "string",
+          "description": "Reference to Chat. (Relationship: Chat 1:N Message)"
+        },
+        "senderId": {
+          "type": "string",
+          "description": "Reference to UserAccount. ID of the message sender. (Relationship: UserAccount 1:N Message)"
+        },
+        "content": {
+          "type": "string",
+          "description": "The message content."
+        },
+        "timestamp": {
+          "type": "string",
+          "description": "Date and time when the message was sent.",
+          "format": "date-time"
+        }
+      },
+      "required": [
+        "id",
+        "chatId",
+        "senderId",
+        "content",
+        "timestamp"
+      ]
+    },
+    "Setting": {
+      "$schema": "http://json-schema.org/draft-07/schema#",
+      "title": "Setting",
+      "type": "object",
+      "description": "Represents user-specific application settings.",
+      "properties": {
+        "id": {
+          "type": "string",
+          "description": "Unique identifier for the setting."
+        },
+        "userAccountId": {
+          "type": "string",
+          "description": "Reference to UserAccount. (Relationship: UserAccount 1:N Setting)"
+        },
+        "theme": {
+          "type": "string",
+          "description": "User's preferred theme (e.g., light, dark, rainbow)."
+        },
+        "notificationsEnabled": {
+          "type": "boolean",
+          "description": "Indicates whether notifications are enabled."
+        }
+      },
+      "required": [
+        "id",
+        "userAccountId",
+        "theme",
+        "notificationsEnabled"
+      ]
+    }
+  },
+  "auth": {
+    "providers": [
+      "password",
+      "anonymous"
+    ]
+  },
+  "firestore": {
+    "structure": [
+      {
+        "path": "/users/{userAccountId}",
+        "definition": {
+          "entityName": "UserAccount",
+          "schema": {
+            "$ref": "#/backend/entities/UserAccount"
+          },
+          "description": "Stores user account information. The 'userAccountId' parameter is the unique identifier for the user.",
+          "params": [
+            {
+              "name": "userAccountId",
+              "description": "The unique identifier for the user account."
+            }
+          ]
+        }
+      },
+      {
+        "path": "/users/{userAccountId}/chats/{chatId}",
+        "definition": {
+          "entityName": "Chat",
+          "schema": {
+            "$ref": "#/backend/entities/Chat"
+          },
+          "description": "Represents a chat session owned by a user. 'userAccountId' identifies the owner. 'chatId' is the unique identifier for the chat.",
+          "params": [
+            {
+              "name": "userAccountId",
+              "description": "The unique identifier for the user account (owner)."
+            },
+            {
+              "name": "chatId",
+              "description": "The unique identifier for the chat session."
+            }
+          ]
+        }
+      },
+      {
+        "path": "/users/{userAccountId}/chats/{chatId}/messages/{messageId}",
+        "definition": {
+          "entityName": "Message",
+          "schema": {
+            "$ref": "#/backend/entities/Message"
+          },
+          "description": "Represents a message within a chat session owned by a user. 'userAccountId' identifies the owner, 'chatId' the chat, and 'messageId' the message itself.",
+          "params": [
+            {
+              "name": "userAccountId",
+              "description": "The unique identifier for the user account (owner)."
+            },
+            {
+              "name": "chatId",
+              "description": "The unique identifier for the chat session."
+            },
+            {
+              "name": "messageId",
+              "description": "The unique identifier for the message."
+            }
+          ]
+        }
+      },
+      {
+        "path": "/users/{userAccountId}/settings/{settingId}",
+        "definition": {
+          "entityName": "Setting",
+          "schema": {
+            "$ref": "#/backend/entities/Setting"
+          },
+          "description": "Represents user-specific settings. 'userAccountId' identifies the owner, and 'settingId' is the unique identifier for the setting.",
+          "params": [
+            {
+              "name": "userAccountId",
+              "description": "The unique identifier for the user account (owner)."
+            },
+            {
+              "name": "settingId",
+              "description": "The unique identifier for the setting."
+            }
+          ]
+        }
+      }
+    ],
+    "reasoning": "The Firestore structure is designed to be secure, scalable, and easily debuggable, adhering to the core principles of Authorization Independence, Clarity of Intent, DBAC (Database-Based Access Control), and QAPs (Rules are not Filters).  \n\n1.  **Authorization Independence:** Achieved through path-based ownership for user-specific data. This avoids the need for `get()` calls in security rules, enabling atomic operations (transactions/batches). For example, `chats` are stored under `/users/{userId}/chats/{chatId}`, making it clear that the user owns the chat.\n2.  **Clarity of Intent:** The structure makes the authorization intent clear. Each path reflects a specific ownership or access model. For example, settings are stored in `/users/{userId}/settings/{settingId}`, clearly indicating that settings are private to the user.\n3.  **DBAC:** Access control is based on `request.auth.uid`, eliminating the need for custom claims. The structure uses path-based ownership for private data, and roles are not used in this simplified version.\n4.  **QAPs:** The structure enables secure `list` operations. Because ownership is embedded in the path, security rules can efficiently filter lists based on `request.auth.uid`.\n\n*Denormalization Strategy*: While the data structure inherently supports authorization independence via path-based ownership, additional denormalization could be considered if collaborative features were added later. For example, if chats involved multiple users, a `members` map could be denormalized into each chat document to avoid `get()` calls in security rules.\n\n*Structural Segregation*:  The structure segregates data based on access needs. User accounts and their related data (chats, settings, messages) are stored under the `/users/{userId}` path, clearly separating user-specific data."
+  }
+}
