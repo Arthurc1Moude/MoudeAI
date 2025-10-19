@@ -136,7 +136,7 @@ const generateChatResponseFlow = ai.defineFlow(
     outputSchema: GenerateChatResponseOutputSchema,
   },
   async (input) => {
-    const promptTemplate = promptTemplates[input.module] || promptTemplates.default;
+  const promptTemplate = promptTemplates[input.module as keyof typeof promptTemplates] || promptTemplates.default;
 
     const prompt = ai.definePrompt({
       name: 'generateChatResponseDynamicPrompt',

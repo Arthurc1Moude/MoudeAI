@@ -10,6 +10,7 @@ import { generateImage, type GenerateImageInput } from "@/ai/flows/generate-imag
 import { generateAudio, type GenerateAudioInput } from "@/ai/flows/generate-audio";
 import { z } from "zod";
 import { doc, getDoc, setDoc } from "firebase/firestore";
+import { getApp } from "firebase/app";
 import { getSdks, initializeFirebase } from "@/firebase";
 
 const modules = [
@@ -28,7 +29,7 @@ const ChatSchema = z.object({
   module: z.enum(modules),
   history: z.array(z.object({
     role: z.enum(['user', 'assistant']),
-    content: z.any(),
+    content: z.string(),
   })),
   files: z.array(z.object({ name: z.string(), content: z.string() })).optional(),
   images: z.array(z.object({ name: z.string(), content: z.string() })).optional(),
@@ -172,7 +173,7 @@ export async function generateAudioAction(
   }
 
   try {
-    const { firestore } = getSdks(initializeFirebase());
+  const { firestore } = getSdks(getApp());
     const { text, uid } = validatedFields.data;
     
     const userRef = doc(firestore, `users/${uid}`);
@@ -216,7 +217,7 @@ export async function updateSettings(prevState: SettingsState, formData: FormDat
   }
   
   try {
-    const { firestore } = getSdks(initializeFirebase());
+  const { firestore } = getSdks(getApp());
     const { uid, ...settingsData } = validatedFields.data;
 
     if (!uid) {
