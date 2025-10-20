@@ -1,10 +1,14 @@
 'use client';
 import { useRouter } from 'next/navigation';
 import { useUser } from '@/firebase';
-import { useEffect } from 'react';
+import { useEffect, useState } from 'react';
 import { Loader2 } from 'lucide-react';
 
-const LOADING_TEXT = 'Loading your experience...';
+// 确保文本在服务端和客户端完全一致
+const LoadingText = () => {
+  const [text] = useState('Loading your experience...'); // 使用状态确保一致性
+  return <p className="text-muted-foreground">{text}</p>;
+};
 
 export default function HomePage() {
   const { user, isUserLoading } = useUser();
@@ -23,7 +27,7 @@ export default function HomePage() {
   return (
     <div className="flex h-screen w-full flex-col items-center justify-center gap-4">
       <Loader2 className="h-12 w-12 animate-spin text-primary" />
-      <p className="text-muted-foreground">{LOADING_TEXT}</p>
+      <LoadingText />
     </div>
   );
 }
