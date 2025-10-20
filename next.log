@@ -110,3 +110,5 @@ Shutting down all Genkit servers...
  POST /api/sendMessage 500 in 3755ms
    skipping /api/sendMessage (conflict)
  ✓ Compiled middleware in 3ms
+ GET /chat/ruSYBUOuv0bzPNZ6qvSV 500 in 90ms
+ GET /favicon.ico 500 in 47ms
