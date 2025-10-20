@@ -99,3 +99,14 @@ Port 3100 is already in use, using next available port 3103 instead.
 Port 3100 is already in use, using next available port 3104 instead.
 Shutting down all Genkit servers...
  GET /favicon.ico?favicon.56766c03.ico 200 in 430ms
+ GET /chat/ruSYBUOuv0bzPNZ6qvSV 200 in 485ms
+Port 3100 is already in use, using next available port 3104 instead.
+Shutting down all Genkit servers...
+ GET /favicon.ico?favicon.56766c03.ico 200 in 435ms
+`x-forwarded-host` header with value `congenial-space-waffle-x5vqpjjvgqqjcpg5x-9002.app.github.dev` does not match `origin` header with value `localhost:9002` from a forwarded Server Actions request. Aborting the action.
+ ⨯ [Error: Invalid Server Actions request.]
+ ○ Compiling /_error ...
+ ✓ Compiled /_error in 2.9s
+ POST /api/sendMessage 500 in 3755ms
+   skipping /api/sendMessage (conflict)
+ ✓ Compiled middleware in 3ms
