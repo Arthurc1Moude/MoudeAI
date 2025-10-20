@@ -3,11 +3,9 @@
 
 import * as React from 'react';
 import {
-  sendMessage,
   generateTitle,
   generateImageAction,
   generateAudioAction,
-  type ChatState,
   type ImageState,
   type AudioState,
 } from '@/app/actions';
@@ -57,6 +55,7 @@ import { useRouter, useParams } from 'next/navigation';
 import { addDocumentNonBlocking, setDocumentNonBlocking } from '@/firebase/non-blocking-updates';
 import { PhoneCallUI } from '@/components/phone-call-ui';
 import { Markdown } from '@/components/Markdown';
+import ErrorBoundary from '@/components/ErrorBoundary';
 import { PlayboxSuggestions } from '@/components/playbox-suggestions';
 
 
@@ -113,8 +112,8 @@ export default function ChatPage() {
   const [selectedImages, setSelectedImages] = useState<File[]>([]);
 
 
-  const initialChatState: ChatState = {};
-  const [chatState, chatFormAction] = useActionState(sendMessage, initialChatState);
+  // Remove Server Action for chat, use fetch instead
+  const [chatState, setChatState] = useState<{response?: string; error?: string}>({});
 
   const initialImageState: ImageState = {};
   const [imageState, imageFormAction] = useActionState(generateImageAction, initialImageState);
@@ -246,7 +245,7 @@ export default function ChatPage() {
     formData.append('files', JSON.stringify(filePayload));
 
 
-    startTextTransition(() => {
+    startTextTransition(async () => {
       let displayContent = query;
       if (selectedImages.length > 0) {
         displayContent += `\n[${selectedImages.length} image(s) attached]`;
@@ -255,7 +254,7 @@ export default function ChatPage() {
         displayContent += `\n[${selectedFiles.length} file(s) attached]`;
       }
 
-       const userMessage = {
+      const userMessage = {
         role: 'user' as const,
         content: displayContent.trim(),
         createdAt: serverTimestamp(),
@@ -271,22 +270,32 @@ export default function ChatPage() {
         });
       }
 
-      chatFormAction(formData);
+      // Use fetch to call API route
+      try {
+        const resp = await fetch('/api/sendMessage', {
+          method: 'POST',
+          body: formData,
+        });
+        const result = await resp.json();
+        setChatState(result);
+      } catch (e: any) {
+        setChatState({ error: e.message || 'Network error' });
+      }
     });
-    formRef.current?.reset();
-    setSelectedFiles([]);
-    setSelectedImages([]);
+  formRef.current?.reset();
+  setSelectedFiles([]);
+  setSelectedImages([]);
   };
   
   const handleImageGeneration = async () => {
     const form = formRef.current;
     if (!form) return;
     const query = (form.elements.namedItem('query') as HTMLInputElement)?.value;
-    if (!query?.trim() || !user || !firestore) {
+      if (!query?.trim() || !user || !firestore) {
       toast({
         variant: 'destructive',
-        title: 'Error',
-        description: 'Please enter a prompt to generate an image.',
+        title: '错误',
+        description: '请输入提示词来生成图片。',
       });
       return;
     };
@@ -318,8 +327,8 @@ export default function ChatPage() {
   const handleAudioGeneration = (text: string) => {
     if (!text.trim()) {
       toast({
-        title: 'Cannot generate audio',
-        description: 'There is no text to convert to speech.',
+        title: '无法生成语音',
+        description: '没有可以转换为语音的文本。',
       });
       return;
     }
@@ -380,7 +389,7 @@ export default function ChatPage() {
             <div className="absolute top-0 left-0 right-0 z-20 p-2">
               <div className="rounded-full bg-secondary/50 p-1 backdrop-blur-sm">
                 <Progress value={imageProgress} className="h-2 rounded-full" />
-                <p className="text-center text-xs text-muted-foreground mt-1">Generating your image...</p>
+                <p className="text-center text-xs text-muted-foreground mt-1">正在生成图片...</p>
               </div>
             </div>
           )}
@@ -423,9 +432,16 @@ export default function ChatPage() {
                           width={512}
                           height={512}
                           className="rounded-lg"
+                         onError={(e) => {
+                            const img = e.currentTarget as HTMLImageElement;
+                            // Replace broken image with a placeholder to avoid DOM reflow issues
+                            img.src = '/placeholder.png';
+                          }}
                         />
                       ) : (
-                        <Markdown content={message.content} />
+                        <ErrorBoundary>
+                          <Markdown content={message.content} />
+                        </ErrorBoundary>
                       )}
                     </div>
                     {message.role === 'user' && (
@@ -504,12 +520,12 @@ export default function ChatPage() {
                   disabled={isPending || isUserLoading || !lastAssistantMessage}
                   className="group relative h-9 shrink-0 overflow-hidden rounded-full bg-secondary/80 pl-2 pr-3 text-sm focus:bg-secondary"
                   onClick={() => handleAudioGeneration(lastAssistantMessage?.content || '')}
-                  aria-label="Read last response aloud"
+                  aria-label="大声朗读最后一条回复"
                 >
                   <span className="absolute inset-0 bg-gradient-to-br from-green-500 to-cyan-500 opacity-0 transition-all duration-500 ease-in-out group-hover:opacity-90 group-hover:saturate-150"></span>
                   <span className="relative z-10 flex items-center gap-1.5 text-secondary-foreground group-hover:text-primary-foreground">
                     <Phone className="h-4 w-4" />
-                    <span>Call</span>
+                    <span>朗读</span>
                   </span>
                 </Button>
                 <Button
@@ -519,12 +535,12 @@ export default function ChatPage() {
                   disabled={isPending || isUserLoading}
                   className="group relative h-9 shrink-0 overflow-hidden rounded-full bg-secondary/80 pl-2 pr-3 text-sm focus:bg-secondary"
                   onClick={handleImageGeneration}
-                  aria-label="Generate Image"
+                  aria-label="生成图片"
                 >
                   <span className="absolute inset-0 bg-gradient-to-br from-blue-500 via-purple-500 to-pink-500 opacity-0 transition-all duration-500 ease-in-out group-hover:opacity-90 group-hover:saturate-150"></span>
                    <span className="relative z-10 flex items-center gap-1.5 text-secondary-foreground group-hover:text-primary-foreground">
                       <ImageIcon className="h-4 w-4" />
-                      <span>Generate Image</span>
+                      <span>生成图片</span>
                   </span>
                 </Button>
                  <Button
@@ -534,12 +550,12 @@ export default function ChatPage() {
                   disabled={isPending || isUserLoading}
                   className="group relative h-9 shrink-0 overflow-hidden rounded-full bg-secondary/80 pl-2 pr-3 text-sm focus:bg-secondary"
                   onClick={() => setSelectedModule('Deep Think')}
-                  aria-label="Deep Thinking Mode"
+                  aria-label="深度思考模式"
                 >
                   <span className="absolute inset-0 bg-gradient-to-br from-teal-500 to-cyan-600 opacity-0 transition-all duration-500 ease-in-out group-hover:opacity-90 group-hover:saturate-150"></span>
                    <span className="relative z-10 flex items-center gap-1.5 text-secondary-foreground group-hover:text-primary-foreground">
                       <BrainCircuit className="h-4 w-4" />
-                      <span>Deep Think</span>
+                      <span>深度思考</span>
                   </span>
                 </Button>
               </div>
@@ -559,7 +575,7 @@ export default function ChatPage() {
                         variant="ghost"
                         size="icon"
                         className="absolute left-2.5 top-1/2 z-10 h-7 w-7 -translate-y-1/2 text-white/50 hover:bg-white/10 hover:text-white"
-                        aria-label="Add file or start Super PlayBox"
+                        aria-label="添加文件或启动 Super PlayBox"
                       >
                         <Plus className="h-5 w-5" />
                       </Button>
@@ -567,13 +583,13 @@ export default function ChatPage() {
                     <PopoverContent className="w-auto p-2" align="start">
                       <div className="grid grid-cols-1 gap-2">
                         <Button variant="ghost" className="justify-start" onClick={handleFileUploadClick}>
-                          <FileUp className="mr-2 h-4 w-4" /> Upload Files
+                          <FileUp className="mr-2 h-4 w-4" /> 上传文件
                         </Button>
                         <Button variant="ghost" className="justify-start" onClick={handleImageUploadClick}>
-                          <ImageUp className="mr-2 h-4 w-4" /> Upload Images
+                          <ImageUp className="mr-2 h-4 w-4" /> 上传图片
                         </Button>
                         <Button variant="ghost" className="justify-start" onClick={() => setSelectedModule('PlayBox')}>
-                          <Gamepad2 className="mr-2 h-4 w-4" /> PlayBox
+                          <Gamepad2 className="mr-2 h-4 w-4" /> 游戏盒子
                         </Button>
                       </div>
                       <div className="mt-2 flex justify-center gap-2">
@@ -589,7 +605,7 @@ export default function ChatPage() {
                   <Input
                     ref={queryInputRef}
                     name="query"
-                    placeholder="Ask Moude AI anything..."
+                    placeholder="问我任何问题..."
                     disabled={isPending || isUserLoading}
                     autoComplete="off"
                     className="relative h-11 rounded-full bg-secondary/80 pl-12 text-base focus:bg-secondary"
@@ -608,7 +624,7 @@ export default function ChatPage() {
                     disabled={isPending || isUserLoading}
                   >
                     <SelectTrigger className="relative h-11 w-auto min-w-[150px] rounded-full bg-secondary/80 text-sm focus:bg-secondary md:min-w-[180px]">
-                      <SelectValue placeholder="Select a module" />
+                      <SelectValue placeholder="选择模块" />
                     </SelectTrigger>
                     <SelectContent>
                       {modules.map(mod => (

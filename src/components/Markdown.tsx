@@ -1,6 +1,7 @@
 
 'use client';
 
+import * as React from 'react';
 import ReactMarkdown from 'react-markdown';
 import rehypeHighlight from 'rehype-highlight';
 import 'highlight.js/styles/github-dark.css';
@@ -11,8 +12,22 @@ interface MarkdownProps {
 }
 
 export function Markdown({ content }: MarkdownProps) {
+  const [mounted, setMounted] = React.useState(false);
+
+  React.useEffect(() => {
+    setMounted(true);
+  }, []);
+
   if (!content) return null;
-  
+
+  // Avoid rendering complex markdown until after mount to prevent DOM
+  // mutations from third-party plugins from interfering with React's
+  // commit phase (can cause insertBefore errors). This introduces a
+  // small client-side hydration delay for message content.
+  if (!mounted) {
+    return <div className="markdown-wrapper" />;
+  }
+
   return (
     <div className="markdown-wrapper">
       <ReactMarkdown

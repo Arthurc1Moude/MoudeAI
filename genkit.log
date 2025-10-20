@@ -1,0 +1,16 @@
+nohup: ignoring input
+
+> nextn@0.1.0 genkit:dev
+> genkit start -- tsx src/ai/dev.ts
+
+
+Update available v1.20.0 → v1.21.0
+To update to the latest version using your package manager, run
+npm install -g genkit-cli
+For other CLI management options, visit https://genkit.dev/docs/devtools/
+Run genkit config set updateNotificationsOptOut true to disable these notifications
+
+Telemetry API running on http://localhost:4033
+Project root: /workspaces/MoudeAI
+Genkit Developer UI: http://localhost:4000
+Error: Error processing file /workspaces/MoudeAI/.genkit/runtimes/16374-3102-1761003144796.json: ENOENT: no such file or directory, open '/workspaces/MoudeAI/.genkit/runtimes/16374-3102-1761003144796.json'

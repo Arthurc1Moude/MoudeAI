@@ -1,0 +1,101 @@
+nohup: ignoring input
+
+> nextn@0.1.0 dev
+> next dev --turbopack -p 9002
+
+   ▲ Next.js 15.3.3 (Turbopack)
+   - Local:        http://localhost:9002
+   - Network:      http://10.0.0.128:9002
+   - Environments: .env
+
+ ✓ Starting...
+ ⚠ i18n configuration in next.config.ts is unsupported in App Router.
+Learn more about internationalization in App Router: https://nextjs.org/docs/app/building-your-application/routing/internationalization
+ ○ Compiling middleware ...
+ ✓ Compiled middleware in 600ms
+ ✓ Ready in 1754ms
+=== Server Actions request received ===
+url: http://localhost:9002/__next_action
+host: localhost:9002
+x-forwarded-host: congenial-space-waffle-x5vqpjjvgqqjcpg5x-9002.app.github.dev
+x-forwarded-proto: http
+origin: http://localhost:9002
+referer: null
+x-forwarded-for: ::1
+user-agent: curl/8.5.0
+=== End Server Actions headers ===
+Middleware dev override: setting Origin -> http://congenial-space-waffle-x5vqpjjvgqqjcpg5x-9002.app.github.dev
+ ○ Compiling /_not-found/page ...
+ ✓ Compiled /_not-found/page in 9.8s
+ POST /__next_action 404 in 10513ms
+ GET / 404 in 284ms
+ ○ Compiling /chat/[chatId] ...
+ ✓ Compiled /chat/[chatId] in 15s
+Port 3100 is already in use, using next available port 3101 instead.
+Port 3100 is already in use, using next available port 3102 instead.
+ GET /chat/oUBOcVeekogVtMQpxudK 200 in 17183ms
+Shutting down all Genkit servers...
+ GET /chat/oUBOcVeekogVtMQpxudK 200 in 789ms
+Port 3100 is already in use, using next available port 3102 instead.
+Shutting down all Genkit servers...
+ ○ Compiling /favicon.ico ...
+ ✓ Compiled /favicon.ico in 1174ms
+ GET /favicon.ico?favicon.56766c03.ico 200 in 1637ms
+`x-forwarded-host` header with value `congenial-space-waffle-x5vqpjjvgqqjcpg5x-9002.app.github.dev` does not match `origin` header with value `localhost:9002` from a forwarded Server Actions request. Aborting the action.
+ ⨯ [Error: Invalid Server Actions request.] { digest: '2341267522' }
+ POST /chat/oUBOcVeekogVtMQpxudK 500 in 2389ms
+Port 3100 is already in use, using next available port 3102 instead.
+Shutting down all Genkit servers...
+ GET /chat/oUBOcVeekogVtMQpxudK 200 in 411ms
+Port 3100 is already in use, using next available port 3102 instead.
+ GET /favicon.ico?favicon.56766c03.ico 200 in 447ms
+Shutting down all Genkit servers...
+`x-forwarded-host` header with value `congenial-space-waffle-x5vqpjjvgqqjcpg5x-9002.app.github.dev` does not match `origin` header with value `localhost:9002` from a forwarded Server Actions request. Aborting the action.
+ ⨯ [Error: Invalid Server Actions request.] { digest: '2341267522' }
+ POST /chat/oUBOcVeekogVtMQpxudK 500 in 1933ms
+Port 3100 is already in use, using next available port 3102 instead.
+Shutting down all Genkit servers...
+ ✓ Compiled in 3.1s
+ ✓ Compiled /chat/[chatId] in 42ms
+Port 3100 is already in use, using next available port 3102 instead.
+ GET /chat/oUBOcVeekogVtMQpxudK 200 in 1853ms
+Port 3100 is already in use, using next available port 3103 instead.
+Shutting down all Genkit servers...
+ GET /favicon.ico?favicon.56766c03.ico 200 in 431ms
+ GET /chat/oUBOcVeekogVtMQpxudK 200 in 428ms
+Port 3100 is already in use, using next available port 3103 instead.
+Shutting down all Genkit servers...
+ GET /chat/oUBOcVeekogVtMQpxudK 200 in 435ms
+Port 3100 is already in use, using next available port 3103 instead.
+ GET /favicon.ico?favicon.56766c03.ico 200 in 479ms
+Shutting down all Genkit servers...
+ GET /chat/d4I0UpOTqCEw018LmvxZ 200 in 356ms
+Port 3100 is already in use, using next available port 3103 instead.
+Shutting down all Genkit servers...
+ GET /chat/oUBOcVeekogVtMQpxudK 200 in 301ms
+Port 3100 is already in use, using next available port 3103 instead.
+Shutting down all Genkit servers...
+ GET /chat/oUBOcVeekogVtMQpxudK 200 in 302ms
+Port 3100 is already in use, using next available port 3103 instead.
+Shutting down all Genkit servers...
+ GET /chat/ruSYBUOuv0bzPNZ6qvSV 200 in 306ms
+ GET /chat/ruSYBUOuv0bzPNZ6qvSV 200 in 295ms
+Port 3100 is already in use, using next available port 3103 instead.
+Shutting down all Genkit servers...
+`x-forwarded-host` header with value `congenial-space-waffle-x5vqpjjvgqqjcpg5x-9002.app.github.dev` does not match `origin` header with value `localhost:9002` from a forwarded Server Actions request. Aborting the action.
+ ⨯ [Error: Invalid Server Actions request.] { digest: '2341267522' }
+ POST /chat/ruSYBUOuv0bzPNZ6qvSV 500 in 1195ms
+`x-forwarded-host` header with value `congenial-space-waffle-x5vqpjjvgqqjcpg5x-9002.app.github.dev` does not match `origin` header with value `localhost:9002` from a forwarded Server Actions request. Aborting the action.
+ ⨯ [Error: Invalid Server Actions request.] { digest: '2341267522' }
+Port 3100 is already in use, using next available port 3103 instead.
+ POST /chat/ruSYBUOuv0bzPNZ6qvSV 500 in 647ms
+Shutting down all Genkit servers...
+ ✓ Compiled middleware in 2ms
+ ✓ Compiled in 2.4s
+ ⚠ Fast Refresh had to perform a full reload due to a runtime error.
+ ✓ Compiled /chat/[chatId] in 104ms
+Port 3100 is already in use, using next available port 3103 instead.
+ GET /chat/ruSYBUOuv0bzPNZ6qvSV 200 in 2743ms
+Port 3100 is already in use, using next available port 3104 instead.
+Shutting down all Genkit servers...
+ GET /favicon.ico?favicon.56766c03.ico 200 in 430ms
